@@ -6,8 +6,9 @@ services:
     container_name: hla-compatibility-matcher
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      - AUDIT_SECRET_KEY=hla-compatibility-matcher-prod-audit-key-2026
       - MODEL_PROVIDER=mock
     restart: unless-stopped
     healthcheck:
