@@ -7,6 +7,7 @@ import sys
 from agents.models import SystemTaskPayload
 from agents.supervisor import SystemSupervisor
 from agents.base import AuditLogger
+from hla_matcher import safe_csv_row
 
 supervisor = SystemSupervisor(model_provider="mock")
 
@@ -55,7 +56,7 @@ def main(argv=None):
         dossier = supervisor.process_task(payload)
         print("=" * 80)
         print(f"  HLA COMPATIBILITY MATCHER")
-        print(f"  Domain: Clinical & Biomedical AI | Standard: CAP / CLSI / ISO Standards")
+        print(f"  Research demonstration only; thresholds are not clinically validated")
         print(f"  Dossier ID: {dossier.dossier_id} | Urgency: [{dossier.overall_urgency.value}]")
         print("=" * 80)
         for a in dossier.alerts:
@@ -116,7 +117,7 @@ def main(argv=None):
         with open(args.output, mode="w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=out_fields)
             writer.writeheader()
-            writer.writerows(out_rows)
+            writer.writerows(safe_csv_row(row) for row in out_rows)
         print(f"Processed {len(out_rows)} records -> {args.output}")
         return 0
 

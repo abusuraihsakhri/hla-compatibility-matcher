@@ -1,46 +1,47 @@
 #!/usr/bin/env python3
 """
 HLA Compatibility Matcher
-HLA-A/B/C/DRB1/DQB1 mismatch grading and eplet load estimation for transplant pairing.
+Small fixed HLA allele catalog lookup; no clinical compatibility or eplet scoring.
 Stdlib parser / mapper with batch CSV and single lookup.
 """
 import argparse
 import csv
 import json
+import re
 import sys
 
 
+# This intentionally small catalog is a demonstration, NOT an HLA reference database.
+HLA_ALLELES = (
+    "A*02:01", "A*24:02", "B*07:02", "B*44:02",
+    "DRB1*15:01", "DRB1*04:01", "C*07:01", "DQB1*06:02",
+)
+
+
+def _normalise_allele(value):
+    """Normalize punctuation and case for exact catalog lookup."""
+    return re.sub(r"[\\s*:_-]", "", str(value or "").upper())
+
+
 def lookup(query):
-    """Single lookup: token overlap + substring scoring (no deps). Returns top hits."""
-    q = str(query).lower().strip()
-    # Built-in HLA allele dictionary for demo
-    hla_alleles = [
-        ("A*02:01", "a02"),
-        ("A*24:02", "a24"),
-        ("B*07:02", "b07"),
-        ("B*44:02", "b44"),
-        ("DRB1*15:01", "drb115"),
-        ("DRB1*04:01", "drb104"),
-        ("C*07:01", "c07"),
-        ("DQB1*06:02", "dqb106"),
-    ]
-    scored = []
-    for label, key in hla_alleles:
-        score = 0
-        if key in q:
-            score += 10
-        # token overlap
-        qt = set(q.split())
-        lt = set(label.lower().split())
-        overlap = len(qt & lt)
-        score += overlap * 2
-        scored.append((score, label))
-    scored.sort(reverse=True)
+    """Return an exact catalog hit; scores are not clinical confidence values."""
+    normalized = _normalise_allele(query)
+    # Historical two-digit shorthands are accepted for the demo catalog only.
+    # They are not equivalent to a high-resolution clinical HLA assignment.
+    scored = [(10, allele) for allele in HLA_ALLELES
+              if normalized and normalized in (
+                  _normalise_allele(allele),
+                  _normalise_allele(allele.split(":")[0]),
+              )]
     top = scored[0] if scored else (0, "no match")
-    # If no meaningful match found, return "no match"
-    if top[0] == 0:
-        top = (0, "no match")
     return {"query": query, "top_hit": top[1], "score": top[0], "all": scored[:3]}
+
+
+def safe_csv_row(row):
+    """Prefix formula-like text fields for safer spreadsheet import/export."""
+    return {key: ("\x27" + value if isinstance(value, str) and
+                  re.match(r"^\s*[=+@-]", value) else value)
+            for key, value in row.items()}
 
 
 def process_csv(inp, out):
@@ -69,9 +70,9 @@ def process_csv(inp, out):
         results.append(merged)
 
     with open(out, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(fieldnames) + ["top_hit", "lookup_score"])
+        writer = csv.DictWriter(f, fieldnames=list(dict.fromkeys(list(fieldnames) + ["top_hit", "lookup_score"])))
         writer.writeheader()
-        writer.writerows(results)
+        writer.writerows(safe_csv_row(row) for row in results)
     return results
 
 

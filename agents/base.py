@@ -10,6 +10,8 @@ import hmac
 import hashlib
 import secrets
 import warnings
+import copy
+import threading
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 
@@ -69,38 +71,58 @@ class AuditTrail:
             )
         self.secret_key = resolved_key.encode("utf-8")
         self.logs: List[Dict[str, Any]] = []
+        self._lock = threading.RLock()
 
     def log(self, actor: str, actor_tier: str, event_type: str, details: Dict[str, Any]) -> Dict[str, Any]:
-        payload_str = json.dumps(details, sort_keys=True)
+        # The audit ledger stores hashes only, not payload values or identifiers.
+        for field in (actor, actor_tier, event_type):
+            assert_no_phi(field)
+        payload_str = json.dumps(details, sort_keys=True, allow_nan=False)
         assert_no_phi(payload_str)
         payload_hash = hashlib.sha256(payload_str.encode("utf-8")).hexdigest()
-        audit_id = f"AUDIT-{int(time.time()*1000)}-{len(self.logs)+1}"
-        ts = datetime.now(timezone.utc).isoformat()
-        prev_hash = self.logs[-1]["current_hash"] if self.logs else "GENESIS_BLOCK_0000000000000000"
-        sign_string = f"{audit_id}|{ts}|{actor}|{actor_tier}|{event_type}|{payload_hash}|{prev_hash}"
-        signature = hmac.new(self.secret_key, sign_string.encode("utf-8"), hashlib.sha256).hexdigest()
-        entry = {
-            "audit_id": audit_id,
-            "timestamp": ts,
-            "actor": actor,
-            "actor_tier": actor_tier,
-            "event_type": event_type,
-            "payload_hash": payload_hash,
-            "prev_hash": prev_hash,
-            "current_hash": signature,
-        }
-        self.logs.append(entry)
-        return entry
+        with self._lock:
+            audit_id = f"AUDIT-{int(time.time()*1000)}-{len(self.logs)+1}"
+            ts = datetime.now(timezone.utc).isoformat()
+            prev_hash = self.logs[-1]["current_hash"] if self.logs else "GENESIS_BLOCK_0000000000000000"
+            sign_string = f"{audit_id}|{ts}|{actor}|{actor_tier}|{event_type}|{payload_hash}|{prev_hash}"
+            signature = hmac.new(self.secret_key, sign_string.encode("utf-8"), hashlib.sha256).hexdigest()
+            entry = {
+                "audit_id": audit_id,
+                "timestamp": ts,
+                "actor": actor,
+                "actor_tier": actor_tier,
+                "event_type": event_type,
+                "payload_hash": payload_hash,
+                "prev_hash": prev_hash,
+                "current_hash": signature,
+            }
+            self.logs.append(entry)
+            return copy.deepcopy(entry)
 
     def verify_integrity(self) -> bool:
-        for i, entry in enumerate(self.logs):
-            prev = self.logs[i-1]["current_hash"] if i > 0 else "GENESIS_BLOCK_0000000000000000"
-            if entry["prev_hash"] != prev:
-                return False
-        return True
+        """Verify both chain links and the HMAC of every ledger entry."""
+        with self._lock:
+            previous = "GENESIS_BLOCK_0000000000000000"
+            for entry in self.logs:
+                try:
+                    if entry["prev_hash"] != previous:
+                        return False
+                    sign_string = "|".join(str(entry[key]) for key in (
+                        "audit_id", "timestamp", "actor", "actor_tier",
+                        "event_type", "payload_hash", "prev_hash"
+                    ))
+                    expected = hmac.new(self.secret_key, sign_string.encode("utf-8"), hashlib.sha256).hexdigest()
+                    signature = entry["current_hash"]
+                    if not isinstance(signature, str) or not hmac.compare_digest(signature, expected):
+                        return False
+                    previous = signature
+                except (KeyError, TypeError, ValueError):
+                    return False
+            return True
 
     def get_trail(self) -> List[Dict[str, Any]]:
-        return self.logs
+        with self._lock:
+            return copy.deepcopy(self.logs)
 
 
 GLOBAL_AUDIT = AuditTrail()
