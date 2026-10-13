@@ -37,6 +37,13 @@ def lookup(query):
     return {"query": query, "top_hit": top[1], "score": top[0], "all": scored[:3]}
 
 
+def safe_csv_row(row):
+    """Prefix formula-like text fields for safer spreadsheet import/export."""
+    return {key: ("\x27" + value if isinstance(value, str) and
+                  re.match(r"^\\s*[=+@-]", value) else value)
+            for key, value in row.items()}
+
+
 def process_csv(inp, out):
     """Process CSV file with HLA lookups. Returns list of result dicts."""
     try:
@@ -65,7 +72,7 @@ def process_csv(inp, out):
     with open(out, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=list(dict.fromkeys(list(fieldnames) + ["top_hit", "lookup_score"])))
         writer.writeheader()
-        writer.writerows(results)
+        writer.writerows(safe_csv_row(row) for row in results)
     return results
 
 
