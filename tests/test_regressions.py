@@ -89,7 +89,7 @@ def test_csv_export_escapes_spreadsheet_formulas(tmp_path):
     assert safe_csv_row({"query": " =1+1"})["query"] == "' =1+1"
     assert safe_csv_row({"query": "A*02:01"})["query"] == "A*02:01"
     source = tmp_path / "source.csv"
-    source.write_text("hla,note\\nA*02:01,=1+1\\n", encoding="utf-8")
+    source.write_text("hla,note\nA*02:01,=1+1\n", encoding="utf-8")
     destination = tmp_path / "out.csv"
     process_csv(source, destination)
     with destination.open(newline="", encoding="utf-8") as stream:
