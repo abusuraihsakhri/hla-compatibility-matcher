@@ -51,7 +51,7 @@ The thresholds (25 and 12) are demonstration values, **not** clinical cutoffs. T
 
 ## API and Docker
 
-Create a local `.env` from `.env.example`. Set `API_ACCESS_TOKEN` to a fresh random value (e.g. `python -c "import secrets; print(secrets.token_urlsafe(32))"`). Keep tokens outside version control.
+For Docker Compose, copy `.env.example` to `.env` and set `API_ACCESS_TOKEN` and `AUDIT_SECRET_KEY` to new random secrets. For direct Python execution, **export** the environment variables in your shell; the CLI does not automatically load `.env`. Generate a token with `python -c "import secrets; print(secrets.token_urlsafe(32))"`. Keep tokens outside version control.
 
 ```bash
 python cli.py serve --host 127.0.0.1 --port 8000
