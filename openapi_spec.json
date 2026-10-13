@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Hla Compatibility Matcher API",
-    "description": "Enterprise Distributed Component Platform (Clinical & Cryptographic AI) adhering to CAP / CLSI / NIST Standards.",
-    "version": "3.0.0-ENTERPRISE",
+    "description": "Demonstration API for arbitrary numeric threshold checks; not HLA compatibility assessment or validated clinical decision support.",
+    "version": "3.0.0",
     "contact": {
       "name": "Dr. Abu Suraih Sakhri",
       "url": "https://github.com/abusuraihsakhri"
@@ -15,24 +15,24 @@
         "summary": "Health and metadata check",
         "responses": {
           "200": {
-            "description": "System optimal"
+            "description": "Service health check"
           }
         }
       }
     },
     "/metrics": {
       "get": {
-        "summary": "Prometheus operational metrics",
+        "summary": "JSON counts (not Prometheus text)",
         "responses": {
           "200": {
-            "description": "Prometheus text metrics"
+            "description": "In-memory task and audit counts"
           }
         }
       }
     },
     "/api/audit": {
       "post": {
-        "summary": "Dispatch task payload across specialized workers",
+        "summary": "Evaluate a demonstration numeric payload with arbitrary thresholds",
         "requestBody": {
           "content": {
             "application/json": {
@@ -69,14 +69,19 @@
         },
         "responses": {
           "200": {
-            "description": "Consensus dossier with HMAC signature"
+            "description": "Demonstration dossier with HMAC-chained audit identifier"
           }
-        }
+        },
+        "security": [
+          {
+            "OperatorToken": []
+          }
+        ]
       }
     },
     "/api/chat": {
       "post": {
-        "summary": "Air-gapped supervisory conversational assistant",
+        "summary": "Deterministic mock response; no model inference",
         "requestBody": {
           "content": {
             "application/json": {
@@ -98,7 +103,12 @@
           "200": {
             "description": "Supervisory response"
           }
-        }
+        },
+        "security": [
+          {
+            "OperatorToken": []
+          }
+        ]
       }
     },
     "/api/audit/logs": {
@@ -106,9 +116,23 @@
         "summary": "Retrieve and cryptographically verify HMAC audit trail",
         "responses": {
           "200": {
-            "description": "Cryptographic audit trail"
+            "description": "In-memory HMAC-chained audit entries and verification result"
           }
-        }
+        },
+        "security": [
+          {
+            "OperatorToken": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OperatorToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Set API_ACCESS_TOKEN in the server environment."
       }
     }
   }
