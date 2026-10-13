@@ -41,3 +41,25 @@ jobs:
         run: node --check docs/matcher.mjs
       - name: Test browser algorithms and CSV exports
         run: node --test tests/browser.test.mjs
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production container
+        run: docker build -t hla-compatibility-matcher:smoke .
+      - name: Smoke test static app and authenticated API
+        run: |
+          docker run -d --name hla-smoke -p 127.0.0.1:8000:8000 -e API_ACCESS_TOKEN=ci-smoke-token hla-compatibility-matcher:smoke
+          trap 'docker logs hla-smoke; docker rm -f hla-smoke' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8000/health
+          curl -fsS http://127.0.0.1:8000/ | grep -q 'HLA Compatibility Matcher'
+          curl -fsS -X POST http://127.0.0.1:8000/api/audit \
+            -H 'Content-Type: application/json' \
+            -H 'Authorization: Bearer ci-smoke-token' \
+            -d '{"task_id":"SMOKE","target_identifier":"SAMPLE","primary_metric":1.0}' | grep -q 'dossier_id'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/api/audit/logs)" = "401"
