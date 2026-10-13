@@ -81,3 +81,17 @@ def test_api_requires_bearer_token(monkeypatch):
         require_api_token("Bearer wrong")
     assert bad.value.status_code == 401
     assert require_api_token("Bearer repro-test-token") is None
+
+
+def test_csv_export_escapes_spreadsheet_formulas(tmp_path):
+    import csv
+    from hla_matcher import safe_csv_row
+    assert safe_csv_row({"query": " =1+1"})["query"] == "' =1+1"
+    assert safe_csv_row({"query": "A*02:01"})["query"] == "A*02:01"
+    source = tmp_path / "source.csv"
+    source.write_text("hla,note\\nA*02:01,=1+1\\n", encoding="utf-8")
+    destination = tmp_path / "out.csv"
+    process_csv(source, destination)
+    with destination.open(newline="", encoding="utf-8") as stream:
+        row = next(csv.DictReader(stream))
+    assert row["note"] == "'=1+1"
