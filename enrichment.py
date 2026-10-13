@@ -1,6 +1,6 @@
 """
 Enrichment Feature Implementation for hla-compatibility-matcher.
-Generated based on domain-specific requirements in specifications.
+Nonvalidated scaffolding: all engines use arbitrary threshold comparisons.\nNo eplet database, haplotype inference, virtual crossmatch or outcome model is implemented.
 """
 from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional, Tuple
@@ -39,13 +39,13 @@ class EpletDatabaseIntegrationEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Eplet Database Integration: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Eplet Database Integration: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = EpletDatabaseIntegrationEngineResult(
             feature_name="Eplet Database Integration",
@@ -89,13 +89,13 @@ class TransplantOutcomePredictionEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Transplant Outcome Prediction: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Transplant Outcome Prediction: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = TransplantOutcomePredictionEngineResult(
             feature_name="Transplant Outcome Prediction",
@@ -139,13 +139,13 @@ class HlahaplotypingModuleEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"HLA-Haplotyping Module: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"HLA-Haplotyping Module: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = HlahaplotypingModuleEngineResult(
             feature_name="HLA-Haplotyping Module",
@@ -189,13 +189,13 @@ class VirtualCrossmatchEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Virtual Crossmatch: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Virtual Crossmatch: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = VirtualCrossmatchEngineResult(
             feature_name="Virtual Crossmatch",
@@ -239,13 +239,13 @@ class AllelelevelResolutionEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Allele-Level Resolution: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Allele-Level Resolution: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = AllelelevelResolutionEngineResult(
             feature_name="Allele-Level Resolution",
@@ -289,13 +289,13 @@ class PopulationFrequencyDatabaseEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"Population Frequency Database: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"Population Frequency Database: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = PopulationFrequencyDatabaseEngineResult(
             feature_name="Population Frequency Database",
@@ -339,13 +339,13 @@ class KdpiScoringEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"KDPI Scoring: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"KDPI Scoring: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = KdpiScoringEngineResult(
             feature_name="KDPI Scoring",
@@ -389,13 +389,13 @@ class RestApiServerEngine:
         if primary_value > self.threshold * 2:
             status = "CRITICAL_ALERT"
             alerts.append(f"REST API Server: Primary value {primary_value:.2f} breached critical threshold ({self.threshold * 2:.2f})")
-            recs.append("Initiate immediate protocol review and escalate to attending lead.")
+            recs.append("Demo threshold crossed; no clinical action follows from this result.")
         elif primary_value > self.threshold:
             status = "WARNING"
             alerts.append(f"REST API Server: Value {primary_value:.2f} exceeds baseline threshold ({self.threshold:.2f})")
-            recs.append("Increase monitoring frequency and perform secondary verification.")
+            recs.append("Demo threshold crossed; no validated clinical interpretation is available.")
         else:
-            recs.append("Parameters nominal under standard operating bounds.")
+            recs.append("Within configured demo threshold; not a clinical normal range.")
 
         res = RestApiServerEngineResult(
             feature_name="REST API Server",
