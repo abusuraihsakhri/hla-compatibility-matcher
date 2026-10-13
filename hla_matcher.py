@@ -40,7 +40,7 @@ def lookup(query):
 def safe_csv_row(row):
     """Prefix formula-like text fields for safer spreadsheet import/export."""
     return {key: ("\x27" + value if isinstance(value, str) and
-                  re.match(r"^\\s*[=+@-]", value) else value)
+                  re.match(r"^\s*[=+@-]", value) else value)
             for key, value in row.items()}
 
 
