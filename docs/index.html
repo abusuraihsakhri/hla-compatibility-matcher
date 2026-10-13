@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Local demonstration HLA allele catalog lookup, allele-string overlap, and CSV export.">
+  <title>HLA Compatibility Matcher — Demonstration</title>
+  <style>
+    :root {font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:dark;
+      --bg:#0b1322;--panel:#132036;--border:#304157;--text:#f1f5f9;--muted:#b6c6db;--accent:#83b8ff;}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);line-height:1.5;padding:clamp(1rem,3vw,2.5rem)}
+    main{max-width:1000px;margin:auto}
+    h1{font-size:clamp(1.5rem,3.2vw,2.2rem);margin:0 0 .4rem}
+    h2{font-size:1.12rem;margin:0 0 .7rem}
+    p{margin:.4rem 0 .9rem}
+    .muted,small{color:var(--muted)}
+    .notice{border-left:4px solid #fbbf24;background:var(--panel);padding:.9rem 1rem;margin:1.25rem 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:1rem}
+    section{border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:1.15rem;margin:0 0 1rem}
+    label{display:block;font-weight:600;font-size:.88rem;margin:.8rem 0 .3rem}
+    input,textarea{display:block;width:100%;background:var(--bg);color:var(--text);border:1px solid #657b95;border-radius:6px;padding:.72rem;font:inherit}
+    textarea{resize:vertical;min-height:100px}
+    :is(input,textarea,button,a):focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+    button,.download{display:inline-block;border:0;border-radius:7px;background:#3579c8;color:white;padding:.7rem 1rem;font:inherit;font-weight:650;cursor:pointer;margin:.8rem 0 .2rem;text-decoration:none}
+    button:hover,.download:hover{background:#2267b3}
+    output,pre{display:block;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--border);
+      background:var(--bg);min-height:2.7rem;padding:.65rem;border-radius:6px;margin:.6rem 0 0;font-family:ui-monospace,monospace;font-size:.88rem}
+    #status{border:0;background:transparent;min-height:auto;padding:0}
+    #status.error{color:#ffb8b8}
+    [hidden]{display:none!important}
+    footer{margin:1.5rem 0;color:var(--muted);font-size:.85rem}
+    @media(prefers-color-scheme:light){:root{color-scheme:light;--bg:#f7f9fc;--panel:white;--border:#c5d0df;--text:#172435;--muted:#3c5068;--accent:#164da3}
+      input,textarea{border-color:#8495ab}button,.download{background:#155ea9}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>HLA Compatibility Matcher</h1>
+    <p class="muted">Local allele catalog lookup, comparison of typed allele strings, and CSV processing.</p>
+  </header>
+  <aside class="notice" aria-label="Scope and limitations">
+    <strong>Research demonstration only.</strong> The lookup uses eight hard-coded HLA entries, not IMGT/HLA or an
+    eplet database. Allele-string overlap is not a virtual crossmatch, donor compatibility score, mismatch grade,
+    or transplant risk estimate. Do not use for allocation or clinical decisions. Use only de-identified test data.
+  </aside>
+  <div class="grid">
+    <section>
+      <h2>Catalog lookup</h2>
+      <form id="lookup-form">
+        <label for="query">HLA allele / demonstration shorthand</label>
+        <input id="query" name="query" value="A*02:01" autocomplete="off" spellcheck="false" required>
+        <small>Examples: A*02:01, A02, DRB1*15:01. Exact entries only.</small>
+        <button type="submit">Look up allele</button>
+      </form>
+      <output id="lookup-result" aria-live="polite">Results appear here.</output>
+    </section>
+    <section>
+      <h2>Allele-string overlap</h2>
+      <form id="compare-form">
+        <label for="donor">Donor alleles</label>
+        <textarea id="donor" spellcheck="false" placeholder="A*02:01, B*07:02" required>A*02:01, B*07:02</textarea>
+        <label for="recipient">Recipient alleles</label>
+        <textarea id="recipient" spellcheck="false" placeholder="A*02:01, B*44:02" required>A*02:01, B*44:02</textarea>
+        <small>Comma, semicolon, or newline separated; A/B/C/DRB1/DQB1 high-resolution strings.</small>
+        <button type="submit">Compare entries</button>
+      </form>
+      <output id="compare-result" aria-live="polite">No comparison calculated.</output>
+    </section>
+  </div>
+  <section>
+    <h2>Batch CSV catalog lookup</h2>
+    <p class="muted">Upload a CSV with a <code>query</code> or <code>hla</code> column (otherwise the first column is used).
+      Adds <code>top_hit</code> and <code>lookup_score</code>; score 10 means an exact catalog/shorthand match, not clinical confidence.
+      Quoted cells are supported. Maximum 2 MB / 10,000 rows.</p>
+    <form id="csv-form">
+      <label for="file">CSV file</label>
+      <input id="file" type="file" accept=".csv,text/csv" required>
+      <button type="submit">Process CSV locally</button>
+    </form>
+    <output id="csv-result" aria-live="polite">No file processed.</output>
+    <a class="download" id="download" href="#" download="hla_catalog_results.csv" hidden>Download result CSV</a>
+  </section>
+  <p id="status" role="status" aria-live="polite">Ready. All computation runs inside your browser.</p>
+  <footer>Self-contained static application. No account, external API, analytics, network request, or data storage is required. The Python CLI and separate FastAPI service are documented in the repository.</footer>
+</main>
+<script type="module" src="./matcher.mjs"></script>
+</body>
+</html>
