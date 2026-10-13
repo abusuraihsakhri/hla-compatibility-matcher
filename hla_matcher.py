@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 HLA Compatibility Matcher
-HLA-A/B/C/DRB1/DQB1 mismatch grading and eplet load estimation for transplant pairing.
+Small fixed HLA allele catalog lookup; no clinical compatibility or eplet scoring.
 Stdlib parser / mapper with batch CSV and single lookup.
 """
 import argparse
