@@ -1,6 +1,7 @@
 """
 Enrichment Feature Implementation for hla-compatibility-matcher.
-Nonvalidated scaffolding: all engines use arbitrary threshold comparisons.\nNo eplet database, haplotype inference, virtual crossmatch or outcome model is implemented.
+Nonvalidated scaffolding: all engines use arbitrary threshold comparisons.
+No eplet database, haplotype inference, virtual crossmatch or outcome model is implemented.
 """
 from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional, Tuple
